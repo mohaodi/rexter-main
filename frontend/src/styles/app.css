@@ -1,0 +1,40 @@
+* { box-sizing: border-box; }
+html, body, #root, #root > .ant-app { width: 100%; height: 100%; margin: 0; }
+body { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; background: #061522; }
+button, input { font: inherit; }
+* { scrollbar-width: thin; scrollbar-color: #31566d transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #31566d; border-radius: 8px; }
+.app-shell { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: #061522; }
+.app-topbar { height: 64px; flex: 0 0 64px; display: flex; align-items: center; gap: 22px; padding: 0 22px; background: #050d17; border-bottom: 1px solid #17364c; box-shadow: 0 6px 20px rgba(0,0,0,.22); z-index: 20; }
+.app-brand { display: flex; align-items: center; gap: 10px; flex: 0 0 235px; min-width: 0; }
+.brand-mark { display: inline-flex; color: #5cccf4; font-size: 26px; }
+.brand-copy { display: grid; gap: 3px; min-width: 0; }
+.brand-copy strong { color: #f0f7fc; font-size: 15px; white-space: nowrap; }
+.brand-copy span { color: #7894a9; font-size: 10px; white-space: nowrap; }
+.app-top-menu { flex: 1; min-width: 0; height: 64px; display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.app-top-menu::-webkit-scrollbar { display: none; }
+.top-menu-item { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex: 0 0 auto; padding: 0 11px; border: 0; border-radius: 0; background: transparent; color: #a9bdca; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.top-menu-item::after { content: ''; position: absolute; right: 10px; bottom: 0; left: 10px; height: 2px; background: transparent; }
+.top-menu-item:hover { color: #e4f5ff; background: rgba(23, 94, 132, .16); }
+.top-menu-item.is-active { color: #f2f9ff; background: linear-gradient(180deg, transparent 55%, rgba(22,130,190,.16)); }
+.top-menu-item.is-active::after { background: #30bced; }
+.topbar-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; color: #7793a6; font-size: 11px; }
+.app-content { flex: 1; min-width: 0; min-height: 0; height: auto; padding: 14px; color: #dbeaf4; overflow: hidden; background: radial-gradient(ellipse at 58% 3%, #0d2940 0, #071725 58%, #06131f 100%); }
+.app-content h1 { font-size: clamp(20px, 1.45vw, 26px); letter-spacing: .4px; }
+.app-content .ant-card { border-radius: 10px; }
+.app-content .ant-card-head { min-height: 44px; padding: 0 16px; font-size: 13px; }
+.app-content .ant-card-body { padding: 16px; }
+.app-content .ant-card-head-title { white-space: normal; }
+.app-content .ant-tag { margin-inline-end: 0; border-radius: 4px; }
+.app-content .ant-btn { flex-shrink: 0; }
+.app-content .ant-space { max-width: 100%; }
+.app-content .ant-statistic-content { font-variant-numeric: tabular-nums; }
+.app-content .ant-statistic-content-suffix { font-size: .65em; }
+.app-content .ant-empty { margin: auto; padding: 24px 10px; }
+.muted { color: #829fb3; font-size: 12px; }
+@media (max-height: 820px) { .app-content { padding: 10px; } }
+@media (max-width: 1260px) { .app-topbar { gap: 10px; padding-inline: 12px; } .app-brand { flex-basis: 190px; } .top-menu-item { padding-inline: 7px; font-size: 11px; } .topbar-meta { gap: 4px; } }
+/* Small devices retain every control through normal page scrolling. */
+@media (max-width: 900px) { .app-shell { height: auto; min-height: 100dvh; overflow: visible; } .app-topbar { height: auto; min-height: 64px; flex: none; flex-wrap: wrap; padding-block: 8px; } .app-brand { flex: 1 0 190px; } .app-top-menu { flex: 1 0 100%; height: 42px; } .top-menu-item { padding-inline: 10px; } .topbar-meta { margin-left: auto; } .app-content { overflow: auto; } }
+@media (max-height: 560px) { .app-content { overflow: auto; } }

@@ -1,0 +1,124 @@
+
+.research-simulation-page { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 14px; color: #d9e5ef; }
+.research-page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0; }
+.research-page-header h1 { margin: 0; color: #f3f8fc; font-weight: 650; }
+.research-page-header p { margin: 6px 0 0; color: #829fb3; font-size: 12px; }
+.header-status { border: 1px solid #285873; color: #89d6fa; border-radius: 6px; padding: 7px 12px; background: #0b283b; white-space: nowrap; }
+.research-grid { display: grid; flex: 1; min-height: 0; grid-template-columns: minmax(0, .95fr) minmax(0, 1.08fr) minmax(0, 1.28fr); grid-template-rows: minmax(0, 1fr) auto; gap: 12px; }
+.research-simulation-page .research-panel { min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #24485e; border-radius: 10px; background: linear-gradient(135deg, #0d2638, #081b2a); display: flex; flex-direction: column; }
+.formula-panel { grid-column: 1; grid-row: 1 / span 2; }
+.twin-panel { grid-column: 2; grid-row: 1; }
+.result-panel { grid-column: 3; grid-row: 1; }
+.control-panel { grid-column: 2 / span 2; grid-row: 2; }
+.research-simulation-page .panel-title { min-height: 42px; flex-shrink: 0; display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid #214458; background: #102b3e; color: #e2f1fa; font-size: 13px; font-weight: 600; }
+.formula-panel > .ant-spin-nested-loading { flex: 1; min-height: 0; }
+.formula-panel > .ant-spin-nested-loading > .ant-spin-container { height: 100%; }
+.research-scroll-panel { height: 100%; overflow: auto; padding: 12px; }
+.research-section { margin-bottom: 16px; }
+.research-section-title { color: #7bd7ff; font-weight: 600; font-size: 13px; margin-bottom: 9px; padding-left: 8px; border-left: 3px solid #25a7e8; }
+.source-box { padding: 10px; border: 1px solid #24465d; border-radius: 6px; background: #071824; line-height: 1.7; }
+.formula-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.formula-list > * { min-width: 0; max-width: 100%; }
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.kv-grid > div { display: flex; flex-direction: column; gap: 3px; background: #071824; border: 1px solid #19384c; border-radius: 5px; padding: 8px; }
+.kv-grid span { color: #829fb3; font-size: 12px; }
+.kv-grid b { color: #e2edf5; font-weight: 500; overflow-wrap: anywhere; }
+.kv-grid.compact { grid-template-columns: 1fr; }
+.position-list { margin-top: 9px; color: #a9bac8; font-family: Consolas, monospace; line-height: 1.7; }
+.three-panel-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.panel-toolbar { flex-shrink: 0; min-height: 42px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #214458; }
+.three-canvas { flex: 1; min-height: 0; overflow: hidden; }
+.three-canvas canvas { display: block; }
+.result-panel-content { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px; gap: 9px; overflow: hidden; }
+.result-meta { color: #829fb3; font-size: 11px; line-height: 1.5; flex-shrink: 0; }
+.result-meta .ant-tag { margin-right: 5px; }
+.result-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
+.result-summary-grid > div { background: #071824; border: 1px solid #214458; border-radius: 5px; padding: 8px; min-width: 0; }
+.result-summary-grid span { display: block; color: #829fb3; font-size: 11px; }
+.result-summary-grid b { display: block; color: #dcecf6; margin-top: 4px; font-size: 13px; overflow-wrap: anywhere; }
+.result-chart { flex: 1.15; min-height: 140px; border-radius: 5px; background: #071824; }
+.result-table-wrap { flex: 1; min-height: 110px; overflow: hidden; }
+.control-panel-content { padding: 10px 14px 12px; }
+.control-header { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.control-title { color: #c3deee; font-size: 12px; }
+.control-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.control-form .ant-form-item { min-width: 0; margin-bottom: 9px; }
+.control-form .ant-form-item-label { padding-bottom: 4px; }
+.control-actions { flex-shrink: 0; }
+.research-simulation-page .ant-table, .research-simulation-page .ant-table-cell { background: #071824 !important; color: #bdd0df !important; border-color: #214458 !important; }
+.research-simulation-page .ant-table-thead > tr > th { color: #89d4f4 !important; }
+.research-simulation-page .ant-form-item-label > label { color: #a9bdcc !important; }
+.research-simulation-page .ant-empty-description { color: #829fb3; }
+
+.source-box-v10 { display: flex; flex-direction: column; gap: 10px; }
+.source-main-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.source-file-name { color: #eef8ff; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.source-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.source-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; color: #7e9ab0; font-size: 12px; }
+.source-stat-row span { background: #06131d; border: 1px solid #17384d; padding: 6px 7px; }
+.source-stat-row b { color: #d9edf8; }
+
+.formula-category-block,
+.parameter-category-block { margin-bottom: 14px; }
+.formula-category-title {
+  color: #8ed7f6;
+  font-size: 12px;
+  letter-spacing: .3px;
+  padding: 6px 8px;
+  background: #092132;
+  border-left: 2px solid #257eaa;
+  margin-bottom: 7px;
+}
+.human-formula-card {
+  padding: 10px;
+  background: #071824;
+  border: 1px solid #1d4055;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+}
+.human-formula-card.pde-card { border-color: #245876; }
+.human-formula-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.human-formula-title { color: #e3f0f8; font-weight: 600; }
+.human-formula-subtitle { color: #6f8da3; font-size: 11px; margin-top: 2px; }
+.latex-display-box {
+  margin-top: 9px;
+  padding: 8px 9px;
+  background: #f7fafc;
+  color: #111827;
+  border-radius: 2px;
+  min-height: 48px;
+  overflow-x: auto;
+}
+.latex-display-box .katex-display { margin: .35em 0; text-align: left; }
+.latex-display-box .katex { font-size: 1.02em; }
+.human-formula-description { color: #7894a8; font-size: 12px; line-height: 1.55; margin-top: 7px; }
+.formula-source-toggle { padding-left: 0 !important; color: #4fbbe8 !important; }
+.formula-source-details {
+  background: #04121b;
+  border: 1px dashed #173a4f;
+  color: #8aa5b8;
+  padding: 8px;
+  line-height: 1.55;
+  font-size: 11px;
+}
+.formula-source-details code,
+.block-code { color: #b8d6e8; font-family: Consolas, "Courier New", monospace; word-break: break-all; }
+.block-code { display: block; margin-top: 4px; white-space: pre-wrap; }
+.formula-fallback { white-space: pre-wrap; word-break: break-word; margin: 0; }
+
+.parameter-symbol { color: #dcf1fb; font-size: 14px; }
+.parameter-source-name { color: #66849a; font-size: 10px; font-family: Consolas, monospace; margin-top: 2px; }
+.parameter-value-cell { color: #dcebf4; }
+.parameter-raw-value { color: #5f7b8f; font-size: 10px; margin-top: 3px; word-break: break-all; }
+
+
+.research-simulation-page .source-main-row { flex-direction: column; gap: 8px; }
+.research-simulation-page .source-tags { margin: 0; }
+.research-simulation-page .source-file-name { overflow-wrap: anywhere; font-size: 12px; }
+.research-simulation-page .source-stat-row { grid-template-columns: 1fr 1fr; }
+.research-simulation-page .human-formula-header { flex-wrap: wrap; }
+.research-simulation-page .human-formula-header .ant-tag { white-space: normal; overflow-wrap: anywhere; max-width: 100%; font-size: 10px; }
+.research-scroll-panel { overflow-x: hidden; }
+.research-simulation-page .ant-table-cell { padding: 6px 8px !important; font-size: 11px; }
+.research-simulation-page .human-formula-card { border-radius: 6px; }
+@media (max-width: 1200px) { .research-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; } .header-status { display: none; } }
+@media (max-width: 760px), (max-height: 560px) { .research-simulation-page { height: auto; } .research-grid { display: flex; flex-direction: column; } .formula-panel { height: 420px; } .twin-panel { height: 360px; } .result-panel { min-height: 300px; } .control-panel { order: -1; } }

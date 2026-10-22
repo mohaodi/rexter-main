@@ -1,0 +1,71 @@
+.ai-workbench-page { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 8px; color: #dcebf5; }
+.ai-workbench-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-shrink: 0; }
+.ai-workbench-head h1 { margin: 0; color: #eef8ff; }
+.ai-workbench-head p { margin: 5px 0 0; color: #829fb3; font-size: 12px; }
+.ai-workbench-tabs { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ai-workbench-tabs > .ant-tabs-nav { flex-shrink: 0; margin-bottom: 8px; }
+.ai-workbench-tabs > .ant-tabs-content-holder { flex: 1; min-height: 0; }
+.ai-workbench-tabs .ant-tabs-content, .ai-workbench-tabs .ant-tabs-tabpane-active { height: 100%; min-height: 0; }
+.ai-tab-content { height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; padding: 1px 2px 4px; }
+.ai-kpis { flex-shrink: 0; }
+.ai-workbench-page .ant-card { border-radius: 8px; background: linear-gradient(135deg, #0d2638, #0a1d2c); border-color: #214358; }
+.ai-workbench-page .ant-card-head, .ai-workbench-page .ant-statistic-title, .ai-workbench-page .ant-statistic-content { color: #dcebf5; }
+.ai-workbench-page .ant-statistic-title { color: #91adbf; }
+.ai-workbench-page .ant-statistic-content { font-size: 23px; }
+.ai-workbench-page .ant-card-head { min-height: 42px; padding-inline: 14px; }
+.ai-workbench-page .ant-card-head-title { padding-block: 10px; font-size: 13px; }
+.ai-workbench-page .ant-card-body { padding: 12px; }
+.ai-workbench-page .ant-table, .ai-workbench-page .ant-table-thead > tr > th, .ai-workbench-page .ant-table-tbody > tr > td { background: #0a2030 !important; color: #c9dce8 !important; border-color: #1c3d52 !important; }
+.ai-workbench-page .ant-table-thead > tr > th { color: #86ccec !important; }
+.ai-workbench-page .ant-alert { flex-shrink: 0; padding: 8px 12px; }
+.ai-workbench-page .ant-alert-description, .ai-note { color: #8ba6b9; font-size: 11px; line-height: 1.55; }
+.ai-note { margin: 9px 0 0; }
+.ai-main-row, .ai-forecast-row { flex: 1; min-height: 0; }
+.ai-main-row > .ant-col, .ai-forecast-row > .ant-col { min-height: 0; }
+.ai-main-row > .ant-col, .ai-forecast-row > .ant-col, .ai-plan-layout > * { min-width: 0; }
+.ai-fill-card { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.ai-fill-card > .ant-card-body { flex: 1; min-height: 0; overflow: auto; }
+.ai-data-content > .ai-main-row { min-height: 0; }
+.ai-connector-list { display: grid; gap: 0; }
+.ai-connector { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid #19394d; padding: 9px 0; }
+.ai-connector > div { min-width: 0; display: grid; gap: 3px; }
+.ai-connector b { color: #d8e9f4; font-size: 12px; }
+.ai-connector small { color: #809bad; font-size: 10px; line-height: 1.45; }
+.ai-import-actions { margin-top: 12px; }
+.ai-import-result { margin-top: 10px; }
+.ai-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0; }
+.ai-forecast-row .ant-card { height: 100%; }
+.ai-forecast-content > .ant-alert { flex-shrink: 0; }
+.ai-tab-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0; color: #8ba6b9; font-size: 11px; }
+.ai-anomaly-content > .ai-anomaly-table { flex: 1; min-height: 0; }
+.ai-anomaly-table > .ant-card-body { flex: 1; min-height: 0; overflow: auto; }
+.ai-plan-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(310px, .76fr) minmax(0, 1.5fr); gap: 12px; }
+.ai-plan-form { height: 100%; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
+.ai-plan-form > .ant-card-body { overflow: auto; }
+.ai-pressure-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+.ai-pressure-inputs label, .ai-plan-fields label { display: grid; grid-template-columns: minmax(74px, auto) minmax(0, 1fr); align-items: center; gap: 5px; color: #9eb5c6; font-size: 10px; }
+.ai-pressure-inputs .ant-input-number, .ai-plan-fields .ant-input-number, .ai-plan-fields .ant-select { width: 100%; min-width: 0; }
+.ai-pressure-inputs .ant-input-number-group-addon { padding-inline: 5px; }
+.ai-plan-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.ai-plan-fields label { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ai-plan-fields label > :last-child { flex: 1; min-width: 90px; }
+.ai-candidate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 10px; }
+.ai-plan-results { min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+.ai-candidate-card { min-width: 0; }
+.ai-candidate-card .ant-card-head { padding-inline: 10px; }
+.ai-candidate-card .ant-card-body { padding: 9px; }
+.ai-candidate-metrics { display: grid; gap: 5px; color: #91adbf; font-size: 10px; }
+.ai-candidate-metrics b { float: right; color: #e2f1fa; font-size: 11px; }
+.ai-candidate-params { margin: 8px 0; color: #83c9e8; font-size: 10px; }
+.ai-well-pressure-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 7px 0; }
+.ai-well-pressure-list span { display: flex; justify-content: space-between; gap: 4px; padding: 4px 5px; border: 1px solid #23465a; border-radius: 4px; color: #8faabd; font-size: 9px; }
+.ai-well-pressure-list b { color: #c8e3f2; font-weight: 600; }
+.ai-candidate-card .ant-table-cell { padding: 4px 3px !important; font-size: 10px; }
+.ai-review-content > .ai-main-row { flex: 1; }
+.ai-review-alert { margin-top: 10px; }
+.ai-review-decision { width: 100%; margin-top: 12px; }
+.ai-review-decision .ant-input { flex: 1; min-width: 180px; }
+.ai-review-history { flex: 0 0 235px; min-height: 0; }
+.ai-review-history > .ant-card-body { overflow: auto; }
+@media (max-width: 1100px) { .ai-plan-layout { grid-template-columns: minmax(280px, .9fr) minmax(0, 1.2fr); } .ai-candidate-grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px), (max-height: 560px) { .ai-workbench-page { height: auto; } .ai-workbench-head { flex-wrap: wrap; } .ai-tab-content { height: auto; overflow: visible; } .ai-main-row, .ai-forecast-row, .ai-plan-layout { display: flex; flex-direction: column; } .ai-fill-card { min-height: 260px; } .ai-plan-form { height: auto; } .ai-candidate-grid { grid-template-columns: 1fr; } }

@@ -1,0 +1,242 @@
+.mine-overview-page {
+  height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 14px;
+  color: #d8e8f4;
+}
+
+.mine-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 0; flex-shrink: 0;
+}
+
+.mine-overview-header h1 {
+  margin: 0;
+  color: #f2f8fc;
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.mine-overview-header p {
+  margin: 5px 0 0;
+  color: #7893a8;
+}
+
+.mine-overview-header-status {
+  color: #72cef2;
+  border: 1px solid #1c5c7b;
+  background: #082135;
+  border-radius: 3px;
+  padding: 7px 11px;
+}
+
+.online-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #28dd8b;
+  margin-right: 6px;
+  box-shadow: 0 0 8px rgba(40, 221, 139, .85);
+}
+
+.mine-overview-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(260px, 21vw, 330px);
+  gap: 14px;
+  flex: 1; min-height: 0;
+}
+
+.mine-scene-card,
+.mine-hud-panel {
+  border: 1px solid #183c54;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 10px 28px rgba(0,0,0,.16);
+}
+
+.mine-scene-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 0; border-radius: 10px;
+  background: #101d2b;
+}
+
+.mine-hud-panel {
+  background: linear-gradient(180deg, #081c2b 0%, #061522 100%);
+}
+
+.mine-scene-toolbar {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border: 1px solid rgba(54, 131, 171, .55);
+  background: rgba(255, 255, 255, .92);
+  border-radius: 6px;
+  box-shadow: 0 5px 20px rgba(41, 68, 84, .14);
+  backdrop-filter: blur(7px);
+}
+
+.mine-three-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 38%, #1a3045 0%, #101d2b 64%, #0a1723 100%);
+}
+
+.mine-three-container canvas { display: block; }
+.mine-label-layer { position: absolute; inset: 0; pointer-events: none; }
+
+.mine-label {
+  color: #d8eef8;
+  font-size: 11px;
+  font-family: "Microsoft YaHei", sans-serif;
+  padding: 2px 7px;
+  background: rgba(7, 25, 39, .92);
+  border: 1px solid rgba(56, 180, 225, .52);
+  border-radius: 3px;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .32);
+}
+
+.mine-label-strong {
+  color: #ffd77a;
+  border-color: rgba(218, 160, 54, .68);
+  background: rgba(45, 34, 18, .94);
+}
+
+.mine-label-research {
+  color: #8de4ff;
+  border-color: rgba(27, 170, 222, .76);
+  background: rgba(7, 34, 51, .96);
+  font-weight: 600;
+}
+
+.mine-label-well {
+  color: #a7dcff;
+  border-color: rgba(48, 142, 206, .58);
+  background: rgba(8, 32, 49, .94);
+  padding: 1px 5px;
+  font-size: 10px;
+}
+
+.mine-scene-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 8;
+  border: 1px solid #1788b5;
+  background: rgba(5, 19, 31, .88);
+  color: #66d9ff;
+  padding: 5px 10px;
+  font-weight: 650;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .24);
+}
+
+.mine-interaction-tip {
+  position: absolute;
+  right: 13px;
+  bottom: 13px;
+  z-index: 8;
+  color: #a5c4d7;
+  background: rgba(5, 19, 31, .86);
+  border: 1px solid rgba(57, 123, 158, .52);
+  padding: 6px 9px;
+  font-size: 11px;
+  max-width: 540px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .24);
+}
+
+.mine-status-strip {
+  position: absolute;
+  left: 13px;
+  bottom: 13px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(105px, 1fr));
+  gap: 6px;
+}
+
+.mine-status-item {
+  min-width: 105px;
+  padding: 8px 10px;
+  background: rgba(5, 20, 32, .88);
+  border: 1px solid rgba(45, 103, 137, .62);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
+}
+.mine-status-item span { display: block; color: #87a8bc; font-size: 11px; }
+.mine-status-item b { display: block; color: #e4f5ff; font-size: 18px; margin-top: 2px; }
+
+.mine-overview-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mine-hud-panel { padding: 13px; }
+.mine-hud-title {
+  color: #79d4fb;
+  font-weight: 650;
+  border-left: 3px solid #23a7e5;
+  padding-left: 8px;
+  margin-bottom: 11px;
+}
+
+.mine-realtime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.mine-realtime-grid > div {
+  border: 1px solid #173b51;
+  background: #061724;
+  padding: 9px;
+}
+.mine-realtime-grid span { color: #748fa3; display: block; font-size: 11px; }
+.mine-realtime-grid b { color: #e3f2fb; display: block; margin-top: 4px; font-size: 15px; }
+
+.mine-facility-panel { min-height: 0; overflow: auto; }
+.facility-name-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.facility-name-row strong { color: #edf8ff; font-size: 16px; }
+.facility-desc { color: #879fb0; line-height: 1.7; }
+.mine-descriptions .ant-descriptions-item-label { color: #6f8ca1 !important; }
+.mine-descriptions .ant-descriptions-item-content { color: #d1e2ee !important; }
+.mine-empty-info { color: #6d879b; padding: 15px 0; }
+
+.mine-research-panel { flex: 1; }
+.research-chain { display: grid; gap: 6px; text-align: center; }
+.research-chain > div {
+  color: #d8eaf4;
+  padding: 8px;
+  border: 1px solid #1b4560;
+  background: #071b2a;
+}
+.research-chain span { color: #42b8eb; }
+.mine-research-panel p { color: #7690a3; line-height: 1.75; }
+
+
+.mine-overview-side { min-height: 0; display: grid; grid-template-rows: auto minmax(150px, .75fr) minmax(0, 1.25fr); gap: 10px; }
+.mine-hud-panel { padding: 12px; border-radius: 10px; min-width: 0; min-height: 0; }
+.mine-hud-title { margin-bottom: 8px; font-size: 12px; }
+.mine-mapping-title { display: flex; align-items: center; justify-content: space-between; }
+.mine-realtime-grid > div { padding: 7px 8px; border-radius: 5px; }
+.mine-realtime-grid b { font-size: 14px; }
+.facility-desc { margin: 8px 0; font-size: 12px; }
+.mine-descriptions .ant-descriptions-row > td { padding-bottom: 5px; }
+.mine-descriptions .ant-descriptions-item-label, .mine-descriptions .ant-descriptions-item-content { font-size: 11px; }
+.mine-research-panel { display: flex; flex-direction: column; overflow: auto; }
+.research-chain { grid-template-columns: 1fr 1fr; gap: 5px; counter-reset: layer; }
+.research-chain > div::before { counter-increment: layer; content: '0' counter(layer) ' · '; color: #70ccec; }
+.research-chain > div { padding: 5px 8px; border-radius: 5px; font-size: 12px; }
+.research-chain > span { display: none; }
+.mine-research-panel p { margin: 8px 0; font-size: 11px; line-height: 1.6; }
+.mine-research-panel > .ant-space { margin-top: auto; flex-shrink: 0; }
+.mine-scene-toolbar { left: 12px; right: 12px; top: 12px; transform: none; width: fit-content; max-width: calc(100% - 24px); flex-wrap: wrap; gap: 6px; }
+.mine-scene-badge { top: 66px; font-size: 11px; border-radius: 5px; }
+.mine-status-strip { grid-template-columns: repeat(4, minmax(65px, 1fr)); gap: 5px; }
+.mine-status-item { min-width: 65px; padding: 6px 10px; border-radius: 5px; }
+.mine-interaction-tip { bottom: 82px; right: 12px; max-width: calc(100% - 24px); border: 0; box-shadow: none; border-radius: 4px; }
+@media (max-height: 820px) { .mine-overview-side { grid-template-rows: auto minmax(180px, .9fr) minmax(0, 1.1fr); } .mine-hud-panel { padding: 10px; } .mine-research-panel .ant-space { gap: 5px !important; } .mine-research-panel .ant-btn { height: 28px; font-size: 12px; } }
+@media (max-width: 1100px) { .mine-overview-header { flex-wrap: wrap; gap: 8px; } .mine-overview-shell { grid-template-columns: minmax(0, 1fr) 260px; gap: 10px; } .mine-overview-header-status { font-size: 11px; } }
+@media (max-width: 760px), (max-height: 560px) { .mine-overview-page { height: auto; } .mine-overview-shell { display: flex; flex-direction: column; } .mine-scene-card { min-height: 420px; } .mine-overview-side { display: flex; } .mine-scene-toolbar { position: relative; margin-bottom: 12px; } .mine-scene-badge { top: 100px; } }

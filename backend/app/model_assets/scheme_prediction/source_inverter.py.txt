@@ -1,0 +1,173 @@
+# inverter.py
+# Python 3.8 兼容版
+
+from typing import List, Dict, Any
+import numpy as np
+import joblib
+from pyswarm import pso
+from sklearn.metrics import mean_squared_error
+from tensorflow.keras.models import load_model
+
+# =========================
+# 1) 加载模型与标准化器
+# =========================
+MODEL_PATH = "optimized_attention_lstm_model.keras"
+SCALER_X_PATH = "标准化scaler_X.pkl"
+SCALER_Y_PATH = "标准化scaler_y.pkl"
+
+lstm_model = load_model(MODEL_PATH, safe_mode=False)
+scaler_X = joblib.load(SCALER_X_PATH)
+scaler_y = joblib.load(SCALER_Y_PATH)
+
+# 你的模型输入是 5 个特征
+# ['修正系数', '瓦斯压力', '抽采压力', '渗透率', '开挖距离']
+timesteps = 3
+n_features = 5
+
+# =========================
+# 2) 参数范围
+# =========================
+param_ranges = {
+    "修正系数": (0.63, 0.95),   # 无量纲
+    "瓦斯压力": (0.4, 2.4),     # MPa
+    "抽采压力": (15, 35),       # kPa
+    "渗透率": (1, 10),          # mD
+    "开挖距离": (0, 200)        # m
+}
+
+input_params = list(param_ranges.keys())
+
+lb_raw = np.array([param_ranges[p][0] for p in input_params], dtype=float)
+ub_raw = np.array([param_ranges[p][1] for p in input_params], dtype=float)
+
+# 用原始参数上下界做标准化边界
+lb_scaled = scaler_X.transform([lb_raw]).flatten()
+ub_scaled = scaler_X.transform([ub_raw]).flatten()
+
+
+# =========================
+# 3) 工具函数
+# =========================
+def _predict_pressure_scaled(x_scaled_1d):
+    """
+    给定一组标准化后的 5 维参数，构造 LSTM 输入并输出预测的 5 个钻孔压力（标准化空间）
+    """
+    x_scaled_1d = np.array(x_scaled_1d, dtype=float).flatten()
+
+    X_seq = np.zeros((1, timesteps, n_features), dtype=float)
+    for t in range(timesteps):
+        X_seq[0, t, :] = x_scaled_1d
+
+    pred = lstm_model.predict(X_seq, verbose=0)
+
+    # 兼容不同输出形状
+    if pred.ndim == 3:
+        pred = pred[0, -1, :]
+    elif pred.ndim == 2:
+        pred = pred[0, :]
+    else:
+        pred = pred.flatten()
+
+    pred = np.array(pred, dtype=float).flatten()
+    return pred[:5]
+
+
+# =========================
+# 4) 主反演函数
+# =========================
+def invert_from_pressures(borehole_pressures_pa, swarmsize=60, maxiter=50, seed=42):
+    """
+    输入:
+        borehole_pressures_pa: 长度为5的列表，单位 Pa
+        swarmsize: 粒子数
+        maxiter: 迭代次数
+        seed: 随机种子
+
+    输出:
+        dict，可直接给前端返回 JSON
+    """
+    if len(borehole_pressures_pa) != 5:
+        raise ValueError("必须输入5个钻孔压力（Pa）。")
+
+    # 目标压力（原始）
+    target_raw = np.array([borehole_pressures_pa], dtype=float)
+
+    # 目标压力（标准化）
+    target_scaled = scaler_y.transform(target_raw).flatten()
+
+    def objective(x_scaled):
+        x_scaled = np.array(x_scaled, dtype=float).flatten()
+
+        # 反标准化到原始空间，检查边界
+        x_raw = scaler_X.inverse_transform([x_scaled])[0]
+
+        penalty = 0.0
+        for i in range(len(lb_raw)):
+            if x_raw[i] < lb_raw[i]:
+                penalty += 1000.0 * (lb_raw[i] - x_raw[i]) ** 2
+            elif x_raw[i] > ub_raw[i]:
+                penalty += 1000.0 * (x_raw[i] - ub_raw[i]) ** 2
+
+        # 给一个极大惩罚，避免搜索发散
+        if penalty > 1e6:
+            return 1e6
+
+        pred_scaled = _predict_pressure_scaled(x_scaled)
+        mse = mean_squared_error(target_scaled, pred_scaled)
+
+        return float(mse + penalty)
+
+    np.random.seed(seed)
+
+    x_opt_scaled, f_opt = pso(
+        objective,
+        lb_scaled,
+        ub_scaled,
+        swarmsize=int(swarmsize),
+        maxiter=int(maxiter),
+        omega=0.7,
+        phip=1.5,
+        phig=2.0,
+        debug=False,
+        minstep=1e-4,
+        minfunc=1e-5
+    )
+
+    # 最优参数（原始空间）
+    x_opt_scaled = np.array(x_opt_scaled, dtype=float).flatten()
+    x_opt_raw = scaler_X.inverse_transform([x_opt_scaled])[0]
+
+    # 预测压力
+    pred_scaled = _predict_pressure_scaled(x_opt_scaled)
+    pred_raw = scaler_y.inverse_transform([pred_scaled])[0]
+
+    # 拟合误差
+    mse_raw = float(mean_squared_error(target_raw.flatten(), pred_raw.flatten()))
+    mae_raw = float(np.mean(np.abs(pred_raw.flatten() - target_raw.flatten())))
+
+    # 前端主展示 4 个参数；开挖距离放 hidden
+    result = {
+        "ok": True,
+        "inputs": {
+            "borehole_pressures_pa": [float(x) for x in borehole_pressures_pa],
+            "swarmsize": int(swarmsize),
+            "maxiter": int(maxiter)
+        },
+        "outputs": {
+            "修正系数": float(x_opt_raw[0]),
+            "储层压力_MPa": float(x_opt_raw[1]),
+            "抽采压力_kPa": float(x_opt_raw[2]),
+            "渗透率_mD": float(x_opt_raw[3])
+        },
+        "hidden": {
+            "开挖距离_m": float(x_opt_raw[4])
+        },
+        "fit": {
+            "mse_objective": float(f_opt),
+            "mse_raw_pa2": mse_raw,
+            "mae_raw_pa": mae_raw,
+            "predicted_pressures_pa": [float(x) for x in pred_raw.flatten().tolist()]
+        }
+    }
+
+    return result

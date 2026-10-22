@@ -1,0 +1,370 @@
+# -*- coding: utf-8 -*-
+"""
+真实产能预测函数版（双指数衰减 + BP残差修正增强版）
+供 server.py 调用
+"""
+
+import os
+import warnings
+import numpy as np
+import pandas as pd
+import joblib
+
+from sklearn.neural_network import MLPRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error
+
+warnings.filterwarnings("ignore")
+
+# =========================================================
+# 0. 参数设置
+# =========================================================
+DATA_PATH = r"F:\python12138\python\try\平台.csv"
+SCALER_Y_PATH = r"F:\python12138\python\try\scaler_y_single.pkl"
+
+RANDOM_SEED = 42
+
+# 未来预测时残差修正衰减长度
+FUTURE_DECAY_LENGTH = 220.0
+
+# 后期增强参数：1300天以后逐渐增强残差修正
+LATE_STAGE_GAIN_MAX = 1.18
+LATE_STAGE_GAIN_SCALE = 120.0
+
+# =========================================================
+# 1. 双指数物理模型（替换为你当前采用的新模型）
+# =========================================================
+Y0 = 3455.54995
+A1 = 2202.95501
+T1 = 73.74008
+A2 = 4113.27628
+T2 = 641.08170
+
+
+def physics_model_exp2(x):
+    x = np.asarray(x, dtype=float)
+    return A1 * np.exp(-x / T1) + A2 * np.exp(-x / T2) + Y0
+
+
+# =========================================================
+# 2. 读 CSV
+# =========================================================
+def read_csv_robust(path):
+    encodings = ["utf-8", "utf-8-sig", "gbk", "gb18030"]
+    last_err = None
+    for enc in encodings:
+        try:
+            return pd.read_csv(path, encoding=enc)
+        except Exception as e:
+            last_err = e
+    raise last_err
+
+
+# =========================================================
+# 3. 特征构造（增强版）
+# =========================================================
+def build_features(day_array, physics_pred):
+    t = np.asarray(day_array, dtype=float)
+    q_phy = np.asarray(physics_pred, dtype=float)
+    return np.column_stack([
+        t,
+        t ** 2,
+        np.log(np.maximum(t, 1.0)),
+        q_phy,
+        t / 1500.0,
+        1.0 / np.sqrt(np.maximum(t, 1.0))
+    ])
+
+
+# =========================================================
+# 4. 后期增强函数
+#    1300天以后逐渐从1过渡到 LATE_STAGE_GAIN_MAX
+# =========================================================
+def late_stage_gain(days, start_day=1300, gain_max=LATE_STAGE_GAIN_MAX, scale=LATE_STAGE_GAIN_SCALE):
+    days = np.asarray(days, dtype=float)
+    gain = 1.0 + (gain_max - 1.0) * (1.0 - np.exp(-(days - start_day) / scale))
+    gain[days <= start_day] = 1.0
+    return gain
+
+
+# =========================================================
+# 5. 主函数
+# =========================================================
+def predict_output(start_day, end_day, model_type="hybrid"):
+    start_day = int(start_day)
+    end_day = int(end_day)
+    model_type = str(model_type).lower()
+
+    if start_day <= 100:
+        raise ValueError("预测起始天数必须大于100")
+    if end_day <= start_day:
+        raise ValueError("预测终止天数必须大于起始天数")
+    if model_type not in ["physical", "hybrid", "compare"]:
+        model_type = "hybrid"
+
+    # =========================
+    # 读取数据
+    # =========================
+    df = read_csv_robust(DATA_PATH)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    required_cols = ["天数", "日产气量"]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"数据中缺少必要列：{col}")
+
+    df = df[["天数", "日产气量"]].copy()
+    df["天数"] = pd.to_numeric(df["天数"], errors="coerce")
+    df["日产气量"] = pd.to_numeric(df["日产气量"], errors="coerce")
+    df = df.dropna().sort_values("天数").reset_index(drop=True)
+
+    # 仅保留100天以后
+    df = df[df["天数"] >= 100].copy().reset_index(drop=True)
+    if len(df) == 0:
+        raise ValueError("没有有效数据，请检查平台.csv")
+
+    # =========================
+    # 读取标准化器（可有可无）
+    # =========================
+    scaler_y = None
+    if os.path.exists(SCALER_Y_PATH):
+        try:
+            scaler_y = joblib.load(SCALER_Y_PATH)
+        except Exception:
+            scaler_y = None
+
+    # =========================
+    # 数据划分
+    # =========================
+    train_nn_df = df[(df["天数"] >= 100) & (df["天数"] <= 1150)].copy().reset_index(drop=True)
+    val_df = df[(df["天数"] >= 1151) & (df["天数"] <= 1300)].copy().reset_index(drop=True)
+    test_df = df[(df["天数"] >= 1301) & (df["天数"] <= 1500)].copy().reset_index(drop=True)
+
+    if len(train_nn_df) < 50:
+        raise ValueError("100-1150天训练数据过少")
+    if len(val_df) < 20:
+        raise ValueError("1151-1300天验证数据过少")
+    if len(test_df) < 20:
+        raise ValueError("1301-1500天测试数据过少")
+
+    # =========================
+    # 物理预测与残差
+    # =========================
+    for part in [train_nn_df, val_df, test_df]:
+        part["物理预测值"] = physics_model_exp2(part["天数"].values)
+        part["真实残差"] = part["日产气量"] - part["物理预测值"]
+
+    X_train = build_features(train_nn_df["天数"].values, train_nn_df["物理预测值"].values)
+    y_train = train_nn_df["真实残差"].values
+
+    X_val = build_features(val_df["天数"].values, val_df["物理预测值"].values)
+    y_val_real = val_df["日产气量"].values
+
+    # =========================
+    # 候选 BP 模型（增强版）
+    # =========================
+    candidate_models = [
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(8,),
+                activation="relu",
+                solver="adam",
+                alpha=1e-2,
+                learning_rate_init=1e-3,
+                max_iter=6000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=60
+            ))
+        ]),
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(10,),
+                activation="relu",
+                solver="adam",
+                alpha=8e-3,
+                learning_rate_init=1e-3,
+                max_iter=6000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=60
+            ))
+        ]),
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(12,),
+                activation="relu",
+                solver="adam",
+                alpha=5e-3,
+                learning_rate_init=1e-3,
+                max_iter=6000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=60
+            ))
+        ]),
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(12, 6),
+                activation="relu",
+                solver="adam",
+                alpha=3e-3,
+                learning_rate_init=8e-4,
+                max_iter=6000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=60
+            ))
+        ]),
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(16, 8),
+                activation="relu",
+                solver="adam",
+                alpha=1e-3,
+                learning_rate_init=8e-4,
+                max_iter=6000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=60
+            ))
+        ]),
+        Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(
+                hidden_layer_sizes=(20, 10),
+                activation="relu",
+                solver="adam",
+                alpha=1e-3,
+                learning_rate_init=6e-4,
+                max_iter=7000,
+                random_state=RANDOM_SEED,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=70
+            ))
+        ])
+    ]
+
+    # =========================
+    # 验证集选最优模型与 alpha
+    # =========================
+    best_model = None
+    best_alpha = 0.0
+    best_rmse = float("inf")
+    best_name = ""
+
+    for idx, model in enumerate(candidate_models, start=1):
+        model.fit(X_train, y_train)
+        val_res_pred = model.predict(X_val)
+
+        alpha_grid = np.linspace(0, 1.3, 131)
+        local_best_rmse = float("inf")
+        local_best_alpha = 0.0
+
+        for alpha in alpha_grid:
+            val_hybrid_pred = val_df["物理预测值"].values + alpha * val_res_pred
+            rmse = np.sqrt(mean_squared_error(y_val_real, val_hybrid_pred))
+            if rmse < local_best_rmse:
+                local_best_rmse = rmse
+                local_best_alpha = alpha
+
+        if local_best_rmse < best_rmse:
+            best_rmse = local_best_rmse
+            best_alpha = local_best_alpha
+            best_model = model
+            best_name = f"候选BP模型{idx}"
+
+    if best_model is None:
+        raise RuntimeError("BP模型训练失败，未找到可用模型。")
+
+    # =========================
+    # 未来预测
+    # =========================
+    future_days = np.arange(start_day, end_day + 1)
+    future_physics = physics_model_exp2(future_days)
+
+    X_future = build_features(future_days, future_physics)
+    future_residual = best_model.predict(X_future)
+
+    # 后期增强 + 未来衰减
+    future_gain = late_stage_gain(future_days)
+    decay = np.exp(-(future_days - 1500) / FUTURE_DECAY_LENGTH)
+
+    # 对1500天之前不进行“未来衰减”压缩，避免区间内被不必要放大
+    decay = np.where(future_days <= 1500, 1.0, decay)
+
+    future_hybrid = future_physics + best_alpha * future_gain * decay * future_residual
+
+    future_physics = np.maximum(future_physics, 0.0)
+    future_hybrid = np.maximum(future_hybrid, 0.0)
+
+    # =========================
+    # 最终采用哪条曲线
+    # =========================
+    if model_type == "physical":
+        final_curve = future_physics
+        final_value = float(future_physics[-1])
+        cumulative_output = float(np.sum(future_physics))
+    else:
+        final_curve = future_hybrid
+        final_value = float(future_hybrid[-1])
+        cumulative_output = float(np.sum(future_hybrid))
+
+    # =========================
+    # 关键节点表格
+    # =========================
+    idxs = [0, len(future_days) // 3, 2 * len(future_days) // 3, len(future_days) - 1]
+    table_data = []
+    used = set()
+    for idx in idxs:
+        if 0 <= idx < len(future_days) and idx not in used:
+            used.add(idx)
+            table_data.append({
+                "day": int(future_days[idx]),
+                "physical": float(future_physics[idx]),
+                "hybrid": float(future_hybrid[idx]),
+                "final": float(final_curve[idx])
+            })
+
+    # =========================
+    # 返回给 server.py / 前端
+    # =========================
+    return {
+        "ok": True,
+        "scheme": "S20-3-30",
+        "model_type": model_type,
+        "days": [int(x) for x in future_days.tolist()],
+        "physical_curve": [float(x) for x in future_physics.tolist()],
+        "hybrid_curve": [float(x) for x in future_hybrid.tolist()],
+        "final_curve": [float(x) for x in final_curve.tolist()],
+        "final_value": final_value,
+        "cumulative_output": cumulative_output,
+        "table_data": table_data,
+        "meta": {
+            "physics_model": "double_exponential",
+            "best_model": best_name,
+            "best_alpha": float(best_alpha),
+            "decay_length": float(FUTURE_DECAY_LENGTH),
+            "late_stage_gain_max": float(LATE_STAGE_GAIN_MAX),
+            "late_stage_gain_scale": float(LATE_STAGE_GAIN_SCALE),
+            "params": {
+                "Y0": float(Y0),
+                "A1": float(A1),
+                "T1": float(T1),
+                "A2": float(A2),
+                "T2": float(T2)
+            }
+        }
+    }
